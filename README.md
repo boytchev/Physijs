@@ -1,5 +1,18 @@
 Physijs
 =======
+
+### Note: This fork of Physijs is compatible with newer Three.js, like r135
+The code is identical to the original Physijs, except for:
+- old Geometry is replaced with BufferGeometry;
+- class definitions are made compatible with Three.js classes
+
+These modifications are not thoroughly tested. There might be other parts of Physijs that need changes.
+
+The rest of this document is a verbatim copy of the original Physijs README file.
+
+
+
+
 #### Physics plugin for [three.js](https://github.com/mrdoob/three.js)
 
 Physijs brings a very easy to use interface to the three.js framework. One of the reasons three.js is so popular is because it is so incredibly easy for graphics newbies to get into 3D programming. Physijs takes that philosophy to heart and makes physics simulations just as easy to run. In fact, there are just [five easy steps](https://github.com/chandlerprall/Physijs/wiki/Basic-Setup) that must be taken to make a 3D scene come alive.
