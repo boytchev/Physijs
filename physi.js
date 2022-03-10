@@ -384,11 +384,14 @@ window.Physijs = (function() {
 	};
 
 	// Physijs.Scene
-	Physijs.Scene = function( params ) {
+	class PhysijsScene extends THREE.Scene
+	{
+		constructor( params ) {
+			super();
 		var self = this;
 
 		Eventable.call( this );
-		THREE.Scene.call( this );
+//		THREE.Scene.call( this );
 
 		this._worker = new Worker( Physijs.scripts.worker || 'physijs_worker.js' );
 		this._worker.transferableMessage = this._worker.webkitPostMessage || this._worker.postMessage;
@@ -489,9 +492,11 @@ window.Physijs = (function() {
 		params.fixedTimeStep = params.fixedTimeStep || 1 / 60;
 		params.rateLimit = params.rateLimit || true;
 		this.execute( 'init', params );
+	}
 	};
-	Physijs.Scene.prototype = new THREE.Scene;
-	Physijs.Scene.prototype.constructor = Physijs.Scene;
+	Physijs.Scene = PhysijsScene;
+	//Physijs.Scene.prototype = new THREE.Scene;
+	//Physijs.Scene.prototype.constructor = Physijs.Scene;
 	Eventable.make( Physijs.Scene );
 
 	Physijs.Scene.prototype._updateScene = function( data ) {
@@ -951,7 +956,10 @@ window.Physijs = (function() {
 
 
 	// Phsijs.Mesh
-	Physijs.Mesh = function ( geometry, material, mass ) {
+	class PhysijsMesh extends THREE.Mesh
+	{
+		constructor ( geometry, material, mass ) {
+		super( geometry, material );
 		var index;
 
 		if ( !geometry ) {
@@ -959,7 +967,7 @@ window.Physijs = (function() {
 		}
 
 		Eventable.call( this );
-		THREE.Mesh.call( this, geometry, material );
+//		THREE.Mesh.call( this, geometry, material );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -973,9 +981,11 @@ window.Physijs = (function() {
 			linearVelocity: new THREE.Vector3,
 			angularVelocity: new THREE.Vector3
 		};
+	}
 	};
-	Physijs.Mesh.prototype = new THREE.Mesh;
-	Physijs.Mesh.prototype.constructor = Physijs.Mesh;
+	Physijs.Mesh = PhysijsMesh;
+	//Physijs.Mesh.prototype = new THREE.Mesh;
+	//Physijs.Mesh.prototype.constructor = Physijs.Mesh;
 	Eventable.make( Physijs.Mesh );
 
 	// Physijs.Mesh.mass
@@ -1085,10 +1095,13 @@ window.Physijs = (function() {
 
 
 	// Physijs.PlaneMesh
-	Physijs.PlaneMesh = function ( geometry, material, mass ) {
+	class PhysijsPlaneMesh extends Physijs.Mesh
+	{
+		constructor ( geometry, material, mass ) {
 		var width, height;
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -1100,44 +1113,54 @@ window.Physijs = (function() {
 		this._physijs.type = 'plane';
 		this._physijs.normal = geometry.faces[0].normal.clone();
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height : mass;
-	};
-	Physijs.PlaneMesh.prototype = new Physijs.Mesh;
-	Physijs.PlaneMesh.prototype.constructor = Physijs.PlaneMesh;
+	}};
+	Physijs.PlaneMesh = PhysijsPlaneMesh;
+	// Physijs.PlaneMesh.prototype = new Physijs.Mesh;
+	// Physijs.PlaneMesh.prototype.constructor = Physijs.PlaneMesh;
 
 	// Physijs.HeightfieldMesh
-	Physijs.HeightfieldMesh = function ( geometry, material, mass, xdiv, ydiv) {
-		Physijs.Mesh.call( this, geometry, material, mass );
+	class PhysijsHeightfieldMesh extends Physijs.Mesh
+	{
+		constructor ( geometry, material, mass, xdiv, ydiv) {
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
+
+		var pos = geometry.getAttribute( 'position' );
 
 		this._physijs.type   = 'heightfield';
 		this._physijs.xsize  = geometry.boundingBox.max.x - geometry.boundingBox.min.x;
 		this._physijs.ysize  = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-		this._physijs.xpts = (typeof xdiv === 'undefined') ? Math.sqrt(geometry.vertices.length) : xdiv + 1;
-		this._physijs.ypts = (typeof ydiv === 'undefined') ? Math.sqrt(geometry.vertices.length) : ydiv + 1;
+		this._physijs.xpts = (typeof xdiv === 'undefined') ? Math.sqrt(pos.count) : xdiv + 1;
+		this._physijs.ypts = (typeof ydiv === 'undefined') ? Math.sqrt(pos.count) : ydiv + 1;
 		// note - this assumes our plane geometry is square, unless we pass in specific xdiv and ydiv
 		this._physijs.absMaxHeight = Math.max(geometry.boundingBox.max.z,Math.abs(geometry.boundingBox.min.z));
 
 		var points = [];
 
 		var a, b;
-		for ( var i = 0; i < geometry.vertices.length; i++ ) {
+		for ( var i = 0; i < pos.count; i++ ) {
 
 			a = i % this._physijs.xpts;
 			b = Math.round( ( i / this._physijs.xpts ) - ( (i % this._physijs.xpts) / this._physijs.xpts ) );
-			points[i] = geometry.vertices[ a + ( ( this._physijs.ypts - b - 1 ) * this._physijs.ypts ) ].z;
+			points[i] = pos.getZ( a + ( ( this._physijs.ypts - b - 1 ) * this._physijs.ypts ) );
 
 			//points[i] = geometry.vertices[i];
 		}
 
 		this._physijs.points = points;
-	};
-	Physijs.HeightfieldMesh.prototype = new Physijs.Mesh;
-	Physijs.HeightfieldMesh.prototype.constructor = Physijs.HeightfieldMesh;
+	}};
+	Physijs.HeightfieldMesh = PhysijsHeightfieldMesh;
+	// Physijs.HeightfieldMesh.prototype = new Physijs.Mesh;
+	// Physijs.HeightfieldMesh.prototype.constructor = Physijs.HeightfieldMesh;
 
 	// Physijs.BoxMesh
-	Physijs.BoxMesh = function( geometry, material, mass ) {
+	class PhysijsBoxMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
+		super( geometry, material, mass );
 		var width, height, depth;
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -1152,14 +1175,18 @@ window.Physijs = (function() {
 		this._physijs.height = height;
 		this._physijs.depth = depth;
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
-	};
-	Physijs.BoxMesh.prototype = new Physijs.Mesh;
-	Physijs.BoxMesh.prototype.constructor = Physijs.BoxMesh;
+	}};
+	Physijs.BoxMesh = PhysijsBoxMesh;
+	//Physijs.BoxMesh.prototype = new Physijs.Mesh;
+	//Physijs.BoxMesh.prototype.constructor = Physijs.BoxMesh;
 
 
 	// Physijs.SphereMesh
-	Physijs.SphereMesh = function( geometry, material, mass ) {
-		Physijs.Mesh.call( this, geometry, material, mass );
+	class PhysijsSphereMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
+		super(geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingSphere ) {
 			geometry.computeBoundingSphere();
@@ -1168,16 +1195,20 @@ window.Physijs = (function() {
 		this._physijs.type = 'sphere';
 		this._physijs.radius = geometry.boundingSphere.radius;
 		this._physijs.mass = (typeof mass === 'undefined') ? (4/3) * Math.PI * Math.pow(this._physijs.radius, 3) : mass;
-	};
-	Physijs.SphereMesh.prototype = new Physijs.Mesh;
-	Physijs.SphereMesh.prototype.constructor = Physijs.SphereMesh;
+	}};
+	Physijs.SphereMesh = PhysijsSphereMesh;
+	//Physijs.SphereMesh.prototype = new Physijs.Mesh;
+	//Physijs.SphereMesh.prototype.constructor = Physijs.SphereMesh;
 
 
 	// Physijs.CylinderMesh
-	Physijs.CylinderMesh = function( geometry, material, mass ) {
+	class PhysijsCylinderMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
 		var width, height, depth;
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -1192,16 +1223,20 @@ window.Physijs = (function() {
 		this._physijs.height = height;
 		this._physijs.depth = depth;
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
-	};
-	Physijs.CylinderMesh.prototype = new Physijs.Mesh;
-	Physijs.CylinderMesh.prototype.constructor = Physijs.CylinderMesh;
+	}};
+	Physijs.CylinderMesh = PhysijsCylinderMesh;
+	//Physijs.CylinderMesh.prototype = new Physijs.Mesh;
+	//Physijs.CylinderMesh.prototype.constructor = Physijs.CylinderMesh;
 
 
 	// Physijs.CapsuleMesh
-	Physijs.CapsuleMesh = function( geometry, material, mass ) {
+	class PhysijsCapsuleMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
 		var width, height, depth;
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -1215,16 +1250,20 @@ window.Physijs = (function() {
 		this._physijs.radius = Math.max(width / 2, depth / 2);
 		this._physijs.height = height;
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
-	};
-	Physijs.CapsuleMesh.prototype = new Physijs.Mesh;
-	Physijs.CapsuleMesh.prototype.constructor = Physijs.CapsuleMesh;
+	}};
+	Physijs.CapsuleMesh = PhysijsCapsuleMesh;
+	//Physijs.CapsuleMesh.prototype = new Physijs.Mesh;
+	//Physijs.CapsuleMesh.prototype.constructor = Physijs.CapsuleMesh;
 
 
 	// Physijs.ConeMesh
-	Physijs.ConeMesh = function( geometry, material, mass ) {
+	class PhysijsConeMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
 		var width, height, depth;
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -1237,18 +1276,22 @@ window.Physijs = (function() {
 		this._physijs.radius = width / 2;
 		this._physijs.height = height;
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height : mass;
-	};
-	Physijs.ConeMesh.prototype = new Physijs.Mesh;
-	Physijs.ConeMesh.prototype.constructor = Physijs.ConeMesh;
+	}};
+	Physijs.ConeMesh = PhysijsConeMesh;
+	//Physijs.ConeMesh.prototype = new Physijs.Mesh;
+	//Physijs.ConeMesh.prototype.constructor = Physijs.ConeMesh;
 
 
 	// Physijs.ConcaveMesh
-	Physijs.ConcaveMesh = function( geometry, material, mass ) {
+	class PhysijsConcaveMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
 		var i,
 			width, height, depth,
 			vertices, face, triangles = [];
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
@@ -1289,28 +1332,33 @@ window.Physijs = (function() {
 		this._physijs.type = 'concave';
 		this._physijs.triangles = triangles;
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
-	};
-	Physijs.ConcaveMesh.prototype = new Physijs.Mesh;
-	Physijs.ConcaveMesh.prototype.constructor = Physijs.ConcaveMesh;
+	}};
+	Physijs.ConcaveMesh = PhysijsConcaveMesh;
+	//Physijs.ConcaveMesh.prototype = new Physijs.Mesh;
+	//Physijs.ConcaveMesh.prototype.constructor = Physijs.ConcaveMesh;
 
 
 	// Physijs.ConvexMesh
-	Physijs.ConvexMesh = function( geometry, material, mass ) {
+	class PhysijsConvexMesh extends Physijs.Mesh
+	{
+		constructor( geometry, material, mass ) {
 		var i,
 			width, height, depth,
 			points = [];
 
-		Physijs.Mesh.call( this, geometry, material, mass );
+		super( geometry, material, mass );
+		//Physijs.Mesh.call( this, geometry, material, mass );
 
 		if ( !geometry.boundingBox ) {
 			geometry.computeBoundingBox();
 		}
 
-		for ( i = 0; i < geometry.vertices.length; i++ ) {
+		var pos = geometry.getAttribute( 'position' );
+		for ( i = 0; i < pos.count; i++ ) {
 			points.push({
-				x: geometry.vertices[i].x,
-				y: geometry.vertices[i].y,
-				z: geometry.vertices[i].z
+				x: pos.getX(i),
+				y: pos.getY(i),
+				z: pos.getZ(i)
 			});
 		}
 
@@ -1322,9 +1370,10 @@ window.Physijs = (function() {
 		this._physijs.type = 'convex';
 		this._physijs.points = points;
 		this._physijs.mass = (typeof mass === 'undefined') ? width * height * depth : mass;
-	};
-	Physijs.ConvexMesh.prototype = new Physijs.Mesh;
-	Physijs.ConvexMesh.prototype.constructor = Physijs.ConvexMesh;
+	}};
+	Physijs.ConvexMesh = PhysijsConvexMesh;
+	//Physijs.ConvexMesh.prototype = new Physijs.Mesh;
+	//Physijs.ConvexMesh.prototype.constructor = Physijs.ConvexMesh;
 
 
 	// Physijs.Vehicle
