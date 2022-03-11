@@ -110,7 +110,8 @@ window.Physijs = (function() {
 		_temp_matrix4_1.identity().makeRotationFromQuaternion( object.quaternion );
 
 		// Invert rotation matrix in order to "unrotate" a point back to object space
-		_temp_matrix4_1.getInverse( _temp_matrix4_1 );
+		//PB//_temp_matrix4_1.getInverse( _temp_matrix4_1 );
+		_temp_matrix4_1.invert();
 
 		// Yay! Temp vars!
 		_temp_vector3_1.copy( position );
