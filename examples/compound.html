@@ -61,20 +61,21 @@
 		scene.add( camera );
 		
 		// Light
-		light = new THREE.DirectionalLight( 0xFFFFFF );
+		light = new THREE.DirectionalLight( 0xFFFFFF, 0.6 );
 		light.position.set( 20, 40, -15 );
 		light.target.position.copy( scene.position );
 		light.castShadow = true;
-		light.shadowCameraLeft = -60;
-		light.shadowCameraTop = -60;
-		light.shadowCameraRight = 60;
-		light.shadowCameraBottom = 60;
-		light.shadowCameraNear = 20;
-		light.shadowCameraFar = 200;
-		light.shadowBias = -.0001
-		light.shadowMapWidth = light.shadowMapHeight = 2048;
-		light.shadowDarkness = .7;
+		light.shadow.camera.left = -60;
+		light.shadow.camera.top = -60;
+		light.shadow.camera.right = 60;
+		light.shadow.camera.bottom = 60;
+		light.shadow.camera.near = 20;
+		light.shadow.camera.far = 200;
+		light.shadow.bias = -.001;
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048;
 		scene.add( light );
+
+		scene.add( new THREE.AmbientLight( 'white', 0.3 ) );
 
 		// Loader
 		loader = new THREE.TextureLoader();
