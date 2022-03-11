@@ -77,23 +77,22 @@
 		scene.add( camera );
 		
 		// ambient light
-		am_light = new THREE.AmbientLight( 0x444444 );
+		am_light = new THREE.AmbientLight( 0x444444, 0.5 );
 		scene.add( am_light );
 
 		// directional light
-		dir_light = new THREE.DirectionalLight( 0xFFFFFF );
+		dir_light = new THREE.DirectionalLight( 0xFFFFFF, 0.5 );
 		dir_light.position.set( 20, 30, -5 );
 		dir_light.target.position.copy( scene.position );
 		dir_light.castShadow = true;
-		dir_light.shadowCameraLeft = -30;
-		dir_light.shadowCameraTop = -30;
-		dir_light.shadowCameraRight = 30;
-		dir_light.shadowCameraBottom = 30;
-		dir_light.shadowCameraNear = 20;
-		dir_light.shadowCameraFar = 200;
-		dir_light.shadowBias = -.001
-		dir_light.shadowMapWidth = dir_light.shadowMapHeight = 2048;
-		dir_light.shadowDarkness = .5;
+		dir_light.shadow.camera.left = -30;
+		dir_light.shadow.camera.top = -30;
+		dir_light.shadow.camera.right = 30;
+		dir_light.shadow.camera.bottom = 30;
+		dir_light.shadow.camera.near = 20;
+		dir_light.shadow.camera.far = 200;
+		dir_light.shadow.bias = -.01;
+		dir_light.shadow.mapSize.width = dir_light.shadow.mapSize.height = 2048;
 		scene.add( dir_light );
 
 		// Loader

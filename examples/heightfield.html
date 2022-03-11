@@ -65,20 +65,21 @@
 		scene.add( camera );
 		
 		// Light
-		light = new THREE.DirectionalLight( 0xFFFFFF );
+		light = new THREE.DirectionalLight( 0xFFFFFF, 0.6 );
 		light.position.set( 20, 40, -15 );
 		light.target.position.copy( scene.position );
 		light.castShadow = true;
-		light.shadowCameraLeft = -60;
-		light.shadowCameraTop = -60;
-		light.shadowCameraRight = 60;
-		light.shadowCameraBottom = 60;
-		light.shadowCameraNear = 20;
-		light.shadowCameraFar = 200;
-		light.shadowBias = -.0001
-		light.shadowMapWidth = light.shadowMapHeight = 2048;
-		light.shadowDarkness = .7;
+		light.shadow.camera.left = -60;
+		light.shadow.camera.top = -60;
+		light.shadow.camera.right = 60;
+		light.shadow.camera.bottom = 60;
+		light.shadow.camera.near = 20;
+		light.shadow.camera.far = 200;
+		light.shadow.bias = -.001;
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048;
 		scene.add( light );
+
+		scene.add( new THREE.AmbientLight( 'white', 0.3 ) );
 
 		// Loader
 		loader = new THREE.TextureLoader();
@@ -96,11 +97,11 @@
 		NoiseGen = new SimplexNoise;
 		
 		ground_geometry = new THREE.PlaneGeometry( 75, 75, 50, 50 );
-		for ( var i = 0; i < ground_geometry.vertices.length; i++ ) {
-			var vertex = ground_geometry.vertices[i];
-			vertex.z = NoiseGen.noise( vertex.x / 10, vertex.y / 10 ) * 2;
+		var pos = ground_geometry.getAttribute( 'position' );
+		for ( var i = 0; i < pos.count; i++ ) {
+			pos.setZ( i, NoiseGen.noise( pos.getX(i) / 10, pos.getY(i) / 10 ) * 2 );
 		}
-		ground_geometry.computeFaceNormals();
+		//ground_geometry.computeFaceNormals();
 		ground_geometry.computeVertexNormals();
 		
 		// If your plane is not square as far as face count then the HeightfieldMesh
