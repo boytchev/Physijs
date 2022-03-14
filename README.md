@@ -7,7 +7,7 @@ except for:
 
 - old Geometry is replaced with BufferGeometry;
 - class definitions are made compatible with Three.js classes
-- all but one of the examples аре updated
+- all but one of the examples are updated
 
 These modifications are not thoroughly tested. There might be other parts of
 Physijs that need changes.
