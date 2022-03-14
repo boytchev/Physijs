@@ -12,6 +12,9 @@
 	<script type="text/javascript" src="js/simplex-noise.js"></script>
 	<script type="text/javascript" src="../physi.js"></script>
 	
+	<script type="text/javascript" src="models/mustang.js"></script>
+	<script type="text/javascript" src="models/mustang_wheel.js"></script>
+	
 	<script type="text/javascript">
 	
 	'use strict';
@@ -82,21 +85,21 @@
 		scene.add( camera );
 		
 		// Light
-		light = new THREE.DirectionalLight( 0xFFFFFF );
+		light = new THREE.DirectionalLight( 0xFFFFFF, 0.6 );
 		light.position.set( 20, 20, -15 );
 		light.target.position.copy( scene.position );
 		light.castShadow = true;
-		light.shadowCameraLeft = -150;
-		light.shadowCameraTop = -150;
-		light.shadowCameraRight = 150;
-		light.shadowCameraBottom = 150;
-		light.shadowCameraNear = 20;
-		light.shadowCameraFar = 400;
-		light.shadowBias = -.0001
-		light.shadowMapWidth = light.shadowMapHeight = 2048;
-		light.shadowDarkness = .7;
+		light.shadow.camera.left = -350;
+		light.shadow.camera.top = -350;
+		light.shadow.camera.right = 350;
+		light.shadow.camera.bottom = 350;
+		light.shadow.camera.near = 10;
+		light.shadow.camera.far = 1000;
+		light.shadow.bias = -.001;
+		light.shadow.mapSize.width = light.shadow.mapSize.height = 2048;
 		scene.add( light );
 
+		scene.add( new THREE.AmbientLight( 'white', 0.3 ) );
 
 		var input;
 
@@ -124,12 +127,12 @@
 		var NoiseGen = new SimplexNoise;
 
 		var ground_geometry = new THREE.PlaneGeometry( 300, 300, 100, 100 );
-		for ( var i = 0; i < ground_geometry.vertices.length; i++ ) {
-			var vertex = ground_geometry.vertices[i];
-			//vertex.y = NoiseGen.noise( vertex.x / 30, vertex.z / 30 ) * 1;
-		}
-		ground_geometry.computeFaceNormals();
-		ground_geometry.computeVertexNormals();
+		//for ( var i = 0; i < ground_geometry.vertices.length; i++ ) {
+		//	var vertex = ground_geometry.vertices[i];
+		//	//vertex.y = NoiseGen.noise( vertex.x / 30, vertex.z / 30 ) * 1;
+		//}
+		//ground_geometry.computeFaceNormals();
+		//ground_geometry.computeVertexNormals();
 
 		// If your plane is not square as far as face count then the HeightfieldMesh
 		// takes two more arguments at the end: # of x faces and # of z faces that were passed to THREE.PlaneMaterial
@@ -142,7 +145,7 @@
 		ground.receiveShadow = true;
 		scene.add( ground );
 
-		for ( i = 0; i < 50; i++ ) {
+		for ( var i = 0; i < 50; i++ ) {
 			var size = Math.random() * 2 + .5;
 			var box = new Physijs.BoxMesh(
 				new THREE.BoxGeometry( size, size, size ),
@@ -158,13 +161,83 @@
 		}
 
 
-		var json_loader = new THREE.JSONLoader();
+//		var json_loader = new THREE.JSONLoader();
 
-		json_loader.load( "models/mustang.js", function( car, car_materials ) {
-			json_loader.load( "models/mustang_wheel.js", function( wheel, wheel_materials ) {
+
+//		json_loader.load( "models/mustang.js", function( car, car_materials ) {
+//			json_loader.load( "models/mustang_wheel.js", function( wheel, wheel_materials ) {
+
+		function loadOldJSON( data )
+		{
+			var geometry = new THREE.BufferGeometry();
+			var vertices = data.vertices;
+			var norms = data.normals;
+			var positions = [];
+			var normals = [];
+			var faces = data.faces;
+
+			// structure of one vertex in vertices[]:
+			// 34, v1, v2, v3, material, n1, n2, n3
+			// this info was obtained by looking at this code:
+			// https://github.com/timoxley/threejs/blob/master/utils/exporters/max/ThreeJSExporter.ms#L270
+
+			var from = 0;
+			for( var m=0; m<data.materials.length; m++ )
+			{
+				var count = 0;
+				for( var i=0; i<faces.length; i+=8 ) if( faces[i+4]==m )
+				{
+					positions.push(
+						vertices[3*faces[i+1]+0], vertices[3*faces[i+1]+1], vertices[3*faces[i+1]+2],
+						vertices[3*faces[i+2]+0], vertices[3*faces[i+2]+1], vertices[3*faces[i+2]+2],
+						vertices[3*faces[i+3]+0], vertices[3*faces[i+3]+1], vertices[3*faces[i+3]+2]
+					)
+						
+					normals.push(
+						norms[3*faces[i+5]+0], norms[3*faces[i+5]+1], norms[3*faces[i+5]+2],
+						norms[3*faces[i+6]+0], norms[3*faces[i+6]+1], norms[3*faces[i+6]+2],
+						norms[3*faces[i+7]+0], norms[3*faces[i+7]+1], norms[3*faces[i+7]+2]
+					)
+					
+					count++;	
+				}
+
+				geometry.addGroup( 3*from, 3*count, m );
+				from += count;
+			}
+
+			geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+			geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+
+			var materials = [];
+			for( var i=0; i<data.materials.length; i++ )
+			{
+				var mat = data.materials[i];
+				
+				var material = new THREE.MeshPhongMaterial({
+					color: new THREE.Color( ...mat.colorDiffuse ),
+					specular: new THREE.Color( ...mat.colorSpecular ),
+					shininess: mat.specularCoef/2,
+				});
+				materials.push( material );
+			}
+
+			return {geometry:geometry, materials:materials};
+		}
+
+		var car_obj = loadOldJSON( data_mustang );
+		var wheel_obj = loadOldJSON( data_mustang_wheel );
+
+		var car = car_obj.geometry;//new THREE.BoxGeometry( 10, 1, 3 ); // car geometry
+		var car_materials = car_obj.materials;//new THREE.MeshPhongMaterial( {color:'crimson', side:THREE.DoubleSide} ); // car_materials (several per one model, so groups are needed too
+		var wheel = wheel_obj.geometry;//new THREE.BoxGeometry( 2, 2, 1 ); // wheel geometry
+		var wheel_materials = wheel_obj.materials;//new THREE.MeshPhongMaterial( {color:'gray'} ); // wheel_materials (several per one model, so groups are needed too
+
+		var wheels = [wheel, wheel.clone().rotateY(Math.PI)];
+
 				var mesh = new Physijs.BoxMesh(
 					car,
-					new THREE.MeshFaceMaterial( car_materials )
+					car_materials
 				);
 				mesh.position.y = 2;
 				mesh.castShadow = mesh.receiveShadow = true;
@@ -179,12 +252,11 @@
 				));
 				scene.add( vehicle );
 
-				var wheel_material = new THREE.MeshFaceMaterial( wheel_materials );
 
 				for ( var i = 0; i < 4; i++ ) {
 					vehicle.addWheel(
-						wheel,
-						wheel_material,
+						wheels[i%2],
+						wheel_materials,
 						new THREE.Vector3(
 								i % 2 === 0 ? -1.6 : 1.6,
 								-1,
@@ -241,8 +313,8 @@
 							break;
 					}
 				});
-			});
-		});
+//			});
+//		});
 
 		requestAnimationFrame( render );
 		scene.simulate();
@@ -255,7 +327,7 @@
 			camera.lookAt( vehicle.mesh.position );
 
 			light.target.position.copy( vehicle.mesh.position );
-			light.position.addVectors( light.target.position, new THREE.Vector3( 20, 20, -15 ) );
+			//light.position.addVectors( light.target.position, new THREE.Vector3( 20, 20, -15 ) );
 		}
 		renderer.render( scene, camera );
 		render_stats.update();

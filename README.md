@@ -6,8 +6,8 @@ identical to the Chandler Prall's [Physijs](https://github.com/chandlerprall/Phy
 except for:
 
 - old Geometry is replaced with BufferGeometry;
-- class definitions are made compatible with Three.js classes
-- all but one of the examples are updated
+- classes are compatible with Three.js classes;
+- all examples are running (more or less).
 
 These modifications are not thoroughly tested. There might be other parts of
 Physijs that need changes.
@@ -23,6 +23,7 @@ Click on an image to run the example:
 [<img src="examples/snapshots/heightfield.jpg" width="200">](https://boytchev.github.io/Physijs/examples/heightfield.html)
 [<img src="examples/snapshots/jenga.jpg" width="200">](https://boytchev.github.io/Physijs/examples/jenga.html)
 [<img src="examples/snapshots/shapes.jpg" width="200">](https://boytchev.github.io/Physijs/examples/shapes.html)
+[<img src="examples/snapshots/vehicle.jpg" width="200">](https://boytchev.github.io/Physijs/examples/vehicle.html)
 
 Memory tests:
 
