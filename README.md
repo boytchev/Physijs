@@ -1,7 +1,7 @@
 Physijs
 =======
 
-This fork of Physijs is compatible with newer Three.js, like r135. The code is
+This fork of Physijs is compatible with newer Three.js, like r150. The code is
 identical to the Chandler Prall's [Physijs](https://github.com/chandlerprall/Physijs),
 except for:
 
