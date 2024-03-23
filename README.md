@@ -1,7 +1,7 @@
 Physijs
 =======
 
-This fork of Physijs is compatible with newer Three.js, like r150. The code is
+This fork of Physijs is compatible with newer Three.js, like r162 and r150. The code is
 identical to the Chandler Prall's [Physijs](https://github.com/chandlerprall/Physijs),
 except for:
 
@@ -12,7 +12,27 @@ except for:
 These modifications are not thoroughly tested. There might be other parts of
 Physijs that need changes.
 
-### Original Physijs examples
+### Original Physijs examples (Three.js r162)
+
+Click on an image to run the example:
+
+[<img src="examples/snapshots/body.jpg" width="200">](https://boytchev.github.io/Physijs/examples/body.module.html)
+[<img src="examples/snapshots/collisions.jpg" width="200">](https://boytchev.github.io/Physijs/examples/collisions.module.html)
+[<img src="examples/snapshots/compound.jpg" width="200">](https://boytchev.github.io/Physijs/examples/compound.module.html)
+[<img src="examples/snapshots/constraints_car.jpg" width="200">](https://boytchev.github.io/Physijs/examples/constraints_car.module.html)
+[<img src="examples/snapshots/heightfield.jpg" width="200">](https://boytchev.github.io/Physijs/examples/heightfield.module.html)
+[<img src="examples/snapshots/jenga.jpg" width="200">](https://boytchev.github.io/Physijs/examples/jenga.module.html)
+[<img src="examples/snapshots/shapes.jpg" width="200">](https://boytchev.github.io/Physijs/examples/shapes.module.html)
+[<img src="examples/snapshots/vehicle.jpg" width="200">](https://boytchev.github.io/Physijs/examples/vehicle.module.html)
+
+Memory tests:
+
+[<img src="examples/snapshots/memorytest-compound.jpg" width="200">](https://boytchev.github.io/Physijs/examples/memorytest-compound.module.html)
+[<img src="examples/snapshots/memorytest-convex.jpg" width="200">](https://boytchev.github.io/Physijs/examples/memorytest-convex.module.html)
+[<img src="examples/snapshots/memorytest.jpg" width="200">](https://boytchev.github.io/Physijs/examples/memorytest.module.html)
+
+
+### Original Physijs examples (Three.js r150)
 
 Click on an image to run the example:
 
